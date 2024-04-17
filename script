@@ -1,0 +1,164 @@
+library(leaps)
+library(qpcR)
+dados <- read.csv("projetoFinalDados.csv", header = T)
+#print(dados)
+
+y = dados$Quality.Rating
+
+x1 = dados$Temperature...C.
+x2 = dados$Pressure..kPa.
+x3 = dados$Temperature.x.Pressure
+x4 = dados$Material.Fusion.Metric
+x5 = dados$Material.Transformation.Metric
+
+#Gráficos
+par(mfrow = c(3,2))
+hist(y)
+hist(x1)
+hist(x2)
+hist(x3)
+hist(x4)
+hist(x5)
+
+
+plot(y,x1)
+plot(y,x2)
+plot(y,x3)
+plot(y,x4)
+plot(y,x5)
+
+###Classificação de qualidade ----------
+#Medidas de tedencia central
+mediaQualidade = mean(dados$Quality.Rating); mediaQualidade
+medianaQualidade = median(dados$Quality.Rating); medianaQualidade
+#frequenciasQualidade = table(dados$Quality.Rating)
+#modaQualidade = as.numeric(names(frequenciasQualidade)[frequenciasQualidade==max(frequenciasQualidade)]); 
+#medidas de posição
+q1Qualidade = quantile(dados$Quality.Rating, probs = 0.25);q1Qualidade
+q2Qualidade = quantile(dados$Quality.Rating, probs = 0.50);q2Qualidade
+q3Qualidade = quantile(dados$Quality.Rating, probs = 0.75);q3Qualidade
+#medidas de dispersão
+dpQualidade = sd(dados$Quality.Rating); dpQualidade
+varQualidade = var(dados$Quality.Rating); varQualidade
+#assimetria
+asQualidade = (3*(mediaQualidade - medianaQualidade))/dpQualidade; asQualidade
+#histograma (classificação de qualidade)
+hist(dados$Quality.Rating, main = 'Histograma da Classificação de Qualidade')
+
+###Temperatura ----------
+#Medidas de tedencia central
+mediaTemperatura = mean(x1); mediaTemperatura
+medianaTemperatura = median(x1); medianaTemperatura
+#medidas de posição
+q1Temperatura = quantile(x1, probs = 0.25);q1Temperatura
+q2Temperatura = quantile(x1, probs = 0.50);q2Temperatura
+q3Temperatura = quantile(x1, probs = 0.75);q3Temperatura
+#medidas de dispersão
+dpTemperatura = sd(x1); dpTemperatura
+varTemperatura = var(x1); varTemperatura
+#assimetria
+asTemperatura = (3*(mediaTemperatura - medianaTemperatura))/dpTemperatura; asTemperatura
+#histograma (temperatura)
+hist(x1, main = 'Histograma da Temperatura')
+
+?ks.test
+
+###Pressão ----------
+#Medidas de tedencia central
+mediaPress = mean(x2); mediaPress
+medianaPress = median(x2); medianaPress
+#medidas de posição
+q1Press = quantile(x2, probs = 0.25);q1Press
+q2Press = quantile(x2, probs = 0.50);q2Press
+q3Press = quantile(x2, probs = 0.75);q3Press
+#medidas de dispersão
+dpPress = sd(x2); dpPress
+varPress = var(x2); varPress
+#assimetria
+asPress = (3*(mediaPress
+              - medianaPress))/dpPress; asPress
+#histograma (temperatura)
+hist(x2, main = 'Histograma da Pressão')
+
+###Temperatura x Pressão ----------
+#Medidas de tedencia central
+mediaTempxPress = mean(x3); mediaTempxPress
+medianaTempxPress = median(x3); medianaTempxPress
+#medidas de posição
+q1TempxPress = quantile(x3, probs = 0.25);q1TempxPress
+q2TempxPress = quantile(x3, probs = 0.50);q2TempxPress
+q3TempxPress = quantile(x3, probs = 0.75);q3TempxPress
+#medidas de dispersão
+dpTempxPress = sd(x3); dpTempxPress
+varTempxPress = var(x3); varTempxPress
+#assimetria
+asTempxPress = (3*(mediaTempxPress
+              - medianaTempxPress))/dpTempxPress; asTempxPress
+#histograma (temperatura)
+hist(x3, main = 'Histograma Temperatura x Pressão')
+
+
+###Métrica de fusão dos materiais ----------
+#Medidas de tedencia central
+mediaMFM = mean(x4); mediaMFM
+medianaMFM = median(x4); medianaMFM
+#medidas de posição
+q1MFM = quantile(x4, probs = 0.25);q1MFM
+q2MFM = quantile(x4, probs = 0.50);q2MFM
+q3MFM = quantile(x4, probs = 0.75);q3MFM
+#medidas de dispersão
+dpMFM = sd(x4); dpMFM
+varMFM = var(x4); varMFM
+#assimetria
+asMFM = (3*(mediaMFM
+              - medianaMFM))/dpMFM; asMFM
+#histograma (temperatura)
+hist(x4, main = 'Histograma Métrica de fusão de materiais')
+
+###Métrica de transformação de material ----------
+#Medidas de tedencia central
+mediaMTM = mean(x5); mediaMTM
+medianaMTM = median(x5); medianaMTM
+#medidas de posição
+q1MTM = quantile(x5, probs = 0.25);q1MTM
+q2MTM = quantile(x5, probs = 0.50);q2MTM
+q3MTM = quantile(x5, probs = 0.75);q3MTM
+#medidas de dispersão
+dpMTM = sd(x5); dpMTM
+varMTM = var(x5); varMTM
+#assimetria
+asMTM = (3*(mediaMTM
+              - medianaMTM))/dpMTM; asMTM
+#histograma (temperatura)
+hist(x5, main = 'Histograma Métrica de transformação de materiais')
+
+m12345 = lm(y~x1+x2+x4+x5)
+
+step1<-step(m12345,direction = "forward")
+summary(step1)
+
+step2<-step(m12345,direction = "backward")
+summary(step2)
+
+step3<-step(m12345,direction = "both")
+summary(step3)
+formula(step3)
+
+mod.step3<-lm(formula = formula(step3),data = dados)
+summary(mod.step3)
+
+par(mfrow = c(2,2))
+plot(mod.step3)
+
+shapiro.test(residuals(mod.step3))
+
+
+### teste ks para temperatura (x1)
+a <- min(x1)
+b <- max(x1)
+
+ks.test(x1, "punif", a, b)
+
+### teste para temperatura x pressão
+#ks.test(x3, "pgama")
+# ir atras da gama
